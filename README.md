@@ -38,9 +38,12 @@ node index.cjs
 If no changes are staged, the script will notify you.
 
 ## 🛠️ Code Reference
-This script's main idea is inspired by the article:
+The main idea of this script is inspired by an article from August. Many thanks to him for his outstanding articles.
 
-> [AI Git Commit](https://medium.com/front-end-augustus-study-notes/ai-git-commit-4a544419fe4f)
+Related Links
+> [AI Git Commit by August@letswritetw](https://medium.com/front-end-augustus-study-notes/ai-git-commit-4a544419fe4f)
+> [How To Get Your Own OpenAI API Key](https://medium.com/@lorenzozar/how-to-get-your-own-openai-api-key-f4d44e60c327)
+> [Open AI API Doc](https://openai.com/index/openai-api/)
 
 ## 📄 License
 This project is licensed under the MIT License.
