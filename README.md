@@ -9,6 +9,10 @@ This Node.js script automatically generates concise and descriptive Git commit m
 - Extracts staged Git changes
 - Utilizes OpenAI GPT-4 for generating commit messages
 - Functional programming style using **Ramda** for cleaner code
+- Security
+- - Sanitize diffs and filenames.
+  - Remove comments.
+  - Confirmation diff before send.
 
 ## 📦 Installation
 
