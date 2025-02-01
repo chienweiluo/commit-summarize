@@ -46,7 +46,7 @@ const getGitDiff = R.pipe(
 
 // Generate a commit message using OpenAI
 const generateCommitMessage = async diff => {
-  // TODO: support another model like deepseek R1
+  // TODO: support another model like deepseek R1 and local like llama or mistral
   const payload = {
     model: 'gpt-4o-mini',
     messages: [
