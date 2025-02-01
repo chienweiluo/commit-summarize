@@ -6,12 +6,15 @@ require('dotenv').config();
 const apiKey = process.env.OPEN_API_KEY_COMMIT;
 const apiUrl = 'https://api.openai.com/v1/chat/completions';
 
+const sanitizeDiff = diff => diff.replace(/(API_KEY|SECRET|PASSWORD|TOKEN|PRIVATE_KEY)=.+/g, 'REDACTED');
+
 const getChangedFiles = () => {
   try {
     return R.pipe(
       () => execSync('git diff --cached --name-only', { encoding: 'utf-8' }),
       R.split('\n'),
-      R.filter(file => file && !file.includes('.min.') && file.trim() !== '')
+      R.filter(file => file && !file.includes('.min.') && file.trim() !== ''),
+      R.filter(file => file.endsWith('.js') || file.endsWith('.ts')),
     )();
   } catch (error) {
     console.error('Error fetching changed files:', error);
@@ -28,7 +31,8 @@ const getGitDiff = R.pipe(
       return '';
     }
   }),
-  R.join('\n')
+  R.join('\n'),
+  sanitizeDiff
 );
 
 const generateCommitMessage = async diff => {
