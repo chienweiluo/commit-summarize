@@ -11,7 +11,9 @@ This Node.js script automatically generates concise and descriptive Git commit m
 - Functional programming style using **Ramda** for cleaner code
 - Security
 - - Sanitize diffs and filenames.
+  - Restrict to safe file types
   - Remove comments.
+  - Anonymize variable names
   - Confirmation diff before send.
 
 ## 📦 Installation
@@ -24,7 +26,7 @@ This Node.js script automatically generates concise and descriptive Git commit m
 
 2. Install the required packages:
    ```bash
-   npm install dotenv axios ramda
+   npm install dotenv axios ramda readline
    ```
 
 3. Set up your `.env` file:
@@ -48,6 +50,8 @@ Related Links
 > [AI Git Commit by August@letswritetw](https://medium.com/front-end-augustus-study-notes/ai-git-commit-4a544419fe4f)
 > [How To Get Your Own OpenAI API Key](https://medium.com/@lorenzozar/how-to-get-your-own-openai-api-key-f4d44e60c327)
 > [Open AI API Doc](https://openai.com/index/openai-api/)
+> [Reddit: readline](https://forum.freecodecamp.org/t/how-to-use-readline-function-in-javascript/228559)
+> [Nodejs: readline interface](https://nodejs.org/api/readline.html)
 
 ## 📄 License
 This project is licensed under the MIT License.
