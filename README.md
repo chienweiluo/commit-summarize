@@ -20,39 +20,52 @@ This Node.js script automatically generates concise and descriptive Git commit m
 
 ## 📦 Installation & Usage
 
-1. Clone the repository:
+1. Install it globally.
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   npm install -g commit-summarize
    ```
 
 2. Install the required packages:
    ```bash
-   yarn
+   export USE_LOCAL_MODEL=true && commit-summarize
+   or
+   export OPEN_API_KEY_COMMIT=YOUR_KEY && commit-summarize
    ```
+Or clone the repository and run it locally.
 
-3. Run the script:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/chienweiluo/commit-summarize.git
+   cd commit-summarize
+   ```
+2. Install the required packages.
+3. Copy the index.cjs to your project and run it.
+   ```bash
+   node index.cjs
+   ```
+4. Run the script:
    - If you want to use OpenAI API, you can set the following environment variable:
    ```env
-   OPEN_API_KEY_COMMIT=YOUR_KEY && yarn start
+   export OPEN_API_KEY_COMMIT=YOUR_KEY && node index.cjs
    ```
    - If you want to use local model (deepseek-r1 on ollama), you can set the following environment variable:
    ```env
-   USE_LOCAL_MODEL=true && yarn start
+   export USE_LOCAL_MODEL=true && node index.cjs
    ```
+After running the script, it will ask you to confirm the diff.
 
-4. Check the diff and answer the yes/no question to confirm the diff.
+1. Check the diff and answer the yes/no question to confirm the diff.
 
-5. Wait for the script to generate the commit message.
+2. Wait for the script to generate the commit message.
 like this:
-```
-**Summary:** Update environment variable handling and logging
+   ```
+   **Summary:** Update environment variable handling and logging
 
-**Description:**
-- Changed the environment variable from `XXX` to `YYY`.
-- Updated console log message for empty changed files for improved clarity.
-...
-```
+   **Description:**
+   - Changed the environment variable from `XXX` to `YYY`.
+   - Updated console log message for empty changed files for improved clarity.
+   ...
+   ```
 
 ## 🛠️ Code Reference
 The main idea of this script is inspired by an article from August. Many thanks to him for his outstanding articles.
