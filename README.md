@@ -47,11 +47,20 @@ If no changes are staged, the script will notify you.
 The main idea of this script is inspired by an article from August. Many thanks to him for his outstanding articles.
 
 Related Links
-> [AI Git Commit by August@letswritetw](https://medium.com/front-end-augustus-study-notes/ai-git-commit-4a544419fe4f)
-> [How To Get Your Own OpenAI API Key](https://medium.com/@lorenzozar/how-to-get-your-own-openai-api-key-f4d44e60c327)
-> [Open AI API Doc](https://openai.com/index/openai-api/)
-> [Reddit: readline](https://forum.freecodecamp.org/t/how-to-use-readline-function-in-javascript/228559)
-> [Nodejs: readline interface](https://nodejs.org/api/readline.html)
+
+[AI Git Commit by August@letswritetw](https://medium.com/front-end-augustus-study-notes/ai-git-commit-4a544419fe4f)
+
+[How To Get Your Own OpenAI API Key](https://medium.com/@lorenzozar/how-to-get-your-own-openai-api-key-f4d44e60c327)
+
+[Open AI API Doc](https://openai.com/index/openai-api/)
+
+[Reddit: readline](https://forum.freecodecamp.org/t/how-to-use-readline-function-in-javascript/228559)
+
+[Nodejs: readline interface](https://nodejs.org/api/readline.html)
+
+[DeepSeek API](https://api-docs.deepseek.com/)
+
+[Ollama github](https://github.com/ollama/ollama/blob/main/docs/api.md)
 
 ## 📄 License
 This project is licensed under the MIT License.

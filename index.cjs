@@ -2,16 +2,20 @@ const R = require('ramda');
 const axios = require('axios');
 const { execSync } = require('child_process');
 const readline = require('readline');
+
 require('dotenv').config();
 
-const apiKey = process.env.OPEN_API_KEY_COMMIT;
-const apiUrl = 'https://api.openai.com/v1/chat/completions';
+const USE_LOCAL_MODEL = process.env.USE_LOCAL_MODEL === 'true';
+const OPEN_AI_KEY_FOR_COMMIT = process.env.OPEN_AI_KEY_FOR_COMMIT;
+const OPEN_AI_MODEL = process.env.OPEN_AI_MODEL || 'gpt-4o-mini';
+const LOCAL_MODEL_NAME = process.env.LOCAL_MODEL_NAME || 'deepseek-r1';
+const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'; // https://api.openai.com/v1/chat/completions
+const LOCAL_MODEL_API_URL = 'http://localhost:11434/api/chat'; // ollama
 
 // Sanitize sensitive information from the diff
 const sanitizeDiff = diff => diff
   .replace(/(API_KEY|SECRET|PASSWORD|TOKEN|PRIVATE_KEY)=.+/g, 'REDACTED')
   .replace(/(\/\*.*?\*\/|\/\/.*?$)/gm, '') // Remove comments
-  .replace(/\b[A-Za-z_][A-Za-z0-9_]*\b/g, 'VAR'); // Anonymize variable names
 
 // Get the list of changed files
 const getChangedFiles = () => {
@@ -21,7 +25,7 @@ const getChangedFiles = () => {
       R.split('\n'),
       R.filter(file => file && !file.includes('.min.') && file.trim() !== ''),
       R.filter(file => !file.includes('config')),
-      R.filter(file => file.endsWith('.js') || file.endsWith('.ts')) // Restrict to safe file types
+      R.filter(file => file.endsWith('js') || file.endsWith('ts')) // Restrict to safe file types
     )();
   } catch (error) {
     console.error('Error fetching changed files:', error);
@@ -45,10 +49,9 @@ const getGitDiff = R.pipe(
 );
 
 // Generate a commit message using OpenAI
-const generateCommitMessage = async diff => {
-  // TODO: support another model like deepseek R1 and local like llama or mistral
+const generateCommitMessageFromOpenAIAPI = async diff => {
   const payload = {
-    model: 'gpt-4o-mini',
+    model: OPEN_AI_MODEL,
     messages: [
       {
         role: 'system',
@@ -62,14 +65,14 @@ const generateCommitMessage = async diff => {
   };
 
   try {
-    const response = await axios.post(apiUrl, payload, {
+    const result = await axios.post(OPENAI_API_URL, payload, {
       headers: {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${OPEN_AI_KEY_FOR_COMMIT}`,
         'Content-Type': 'application/json',
       },
     });
 
-    return R.pathOr('Default commit message.', ['data', 'choices', 0, 'message', 'content'], response).trim();
+    return R.pathOr('Default commit message.', ['data', 'choices', 0, 'message', 'content'], result).trim();
   } catch (error) {
     const err = error.response?.data || error.message;
     if (process.env.NODE_ENV !== 'production') {
@@ -81,6 +84,38 @@ const generateCommitMessage = async diff => {
   }
 };
 
+const generateCommitMessageFromLocalModel = async diff => {
+  const payload = JSON.stringify({
+    model: LOCAL_MODEL_NAME,
+    messages: [
+      {
+        role: 'system',
+        content: 'You are an AI specialized in generating concise Git commit messages. Respond ONLY with the commit message, without explanations or additional context.',
+      },      
+      {
+        role: 'user',
+        content: `Generate a concise Git commit message based on the following git diff. Strictly follow this format:\n\nSummary: <no more than 50 characters>\n\nDescription:\n- Bullet point 1\n- Bullet point 2\n\nDo NOT include explanations, thoughts, or additional context. Only provide the formatted commit message.\n\nGit diff:\n${diff}`,
+      }
+    ],
+    temperature: 0.2,
+    top_p: 0.9,
+    stream: false
+  });
+
+  try {
+    const result = await axios.post(LOCAL_MODEL_API_URL, payload, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+    console.log(result, 'result from local model');
+    return R.pathOr('Default commit message.', ['data', 'message', 'content'], result).trim();
+  } catch (error) {
+    console.error('Local model error:', error);
+    return 'Error summarizing with local model.';
+  }
+};
+
 // Prompt user for confirmation before sending diff
 const confirmSend = diff => {
   return new Promise(resolve => {
@@ -88,8 +123,8 @@ const confirmSend = diff => {
       input: process.stdin,
       output: process.stdout
     });
-
-    rl.question('Do you want to send this diff to OpenAI? (yes/no): ', answer => {
+    console.log(diff);
+    rl.question('Do you want to send this diff to AI? (yes/no): ', answer => {
       rl.close();
       resolve(answer.trim().toLowerCase() === 'yes');
     });
@@ -101,7 +136,7 @@ const main = async () => {
   const changedFiles = getChangedFiles();
 
   if (R.isEmpty(changedFiles)) {
-    console.log('No changes to commit.');
+    console.log('No changedFiles to commit.');
     return;
   }
 
@@ -109,8 +144,20 @@ const main = async () => {
   const confirmed = await confirmSend(diff);
 
   if (confirmed) {
-    const commitMessage = await generateCommitMessage(diff);
-    console.log(commitMessage);
+    if (USE_LOCAL_MODEL) {
+      try {
+        console.log('Using local DeepSeek R1 model...');
+        return await generateCommitMessageFromLocalModel(diff);
+      } catch (error) {
+        console.error('Local model error:', error);
+        return 'Error summarizing with local model.';
+      }
+    } else {
+      console.log(`Using OpenAI API ${OPEN_AI_MODEL}...`);
+      const commitMessage = await generateCommitMessageFromOpenAIAPI(diff);
+      console.log(commitMessage);
+      return commitMessage;
+    }
   } else {
     console.log('Operation canceled.');
   }
