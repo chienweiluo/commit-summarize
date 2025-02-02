@@ -7,14 +7,16 @@ This Node.js script automatically generates concise and descriptive Git commit m
 
 ## 🚀 Features
 - Extracts staged Git changes
-- Utilizes OpenAI GPT-4 for generating commit messages
 - Functional programming style using **Ramda** for cleaner code
+- Utilizes OpenAI GPT-4 for generating commit messages
+- Support to use local model(deepseek-r1 on ollama) with USE_LOCAL_MODEL=true.
 - Security
-- - Sanitize diffs and filenames.
+  - Sanitize diffs and filenames.
   - Restrict to safe file types
   - Remove comments.
-  - Anonymize variable names
   - Confirmation diff before send.
+  - Enable to use local model with ollama, avoid code exposure.
+  - Anonymize variable names [On the way]
 
 ## 📦 Installation
 

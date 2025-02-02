@@ -2,6 +2,7 @@ const R = require('ramda');
 const axios = require('axios');
 const { execSync } = require('child_process');
 const readline = require('readline');
+const chalk = require('chalk');
 
 require('dotenv').config();
 
@@ -11,6 +12,18 @@ const OPEN_AI_MODEL = process.env.OPEN_AI_MODEL || 'gpt-4o-mini';
 const LOCAL_MODEL_NAME = process.env.LOCAL_MODEL_NAME || 'deepseek-r1';
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions'; // https://api.openai.com/v1/chat/completions
 const LOCAL_MODEL_API_URL = 'http://localhost:11434/api/chat'; // ollama
+
+// Colorize the diff for better readability of logs
+const colorizeDiff = diff => {
+  return diff.split('\n').map(line => {
+    if (line.startsWith('+')) {
+      return chalk.green(line); 
+    } else if (line.startsWith('-')) {
+      return chalk.red(line); 
+    }
+    return line;
+  }).join('\n');
+};
 
 // Sanitize sensitive information from the diff
 const sanitizeDiff = diff => diff
@@ -25,7 +38,7 @@ const getChangedFiles = () => {
       R.split('\n'),
       R.filter(file => file && !file.includes('.min.') && file.trim() !== ''),
       R.filter(file => !file.includes('config')),
-      R.filter(file => file.endsWith('js') || file.endsWith('ts')) // Restrict to safe file types
+      // R.filter(file => file.endsWith('js') || file.endsWith('ts')) // Restrict to safe file types
     )();
   } catch (error) {
     console.error('Error fetching changed files:', error);
@@ -108,7 +121,7 @@ const generateCommitMessageFromLocalModel = async diff => {
         'Content-Type': 'application/json',
       },
     });
-    console.log(result, 'result from local model');
+    console.log(result, 'result from local model'); // TODO: remove this
     return R.pathOr('Default commit message.', ['data', 'message', 'content'], result).trim();
   } catch (error) {
     console.error('Local model error:', error);
@@ -123,7 +136,11 @@ const confirmSend = diff => {
       input: process.stdin,
       output: process.stdout
     });
-    console.log(diff);
+
+    console.log(chalk.yellow('Show diff: ----------------------------'));
+    console.log(colorizeDiff(diff));
+    console.log(chalk.yellow('Show diff end. ----------------------------'));
+
     rl.question('Do you want to send this diff to AI? (yes/no): ', answer => {
       rl.close();
       resolve(answer.trim().toLowerCase() === 'yes');
@@ -154,12 +171,11 @@ const main = async () => {
       }
     } else {
       console.log(`Using OpenAI API ${OPEN_AI_MODEL}...`);
-      const commitMessage = await generateCommitMessageFromOpenAIAPI(diff);
-      console.log(commitMessage);
-      return commitMessage;
+      return await generateCommitMessageFromOpenAIAPI(diff);
     }
   } else {
     console.log('Operation canceled.');
+    return 'Operation canceled.';
   }
 };
 
