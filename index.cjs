@@ -123,7 +123,6 @@ const generateCommitMessageFromLocalModel = async diff => {
         'Content-Type': 'application/json',
       },
     });
-    console.log(result, 'result from local model'); // TODO: remove this
     return R.pathOr('Default commit message.', ['data', 'message', 'content'], result).trim();
   } catch (error) {
     console.error('Local model error:', error);
@@ -166,7 +165,9 @@ const main = async () => {
     if (USE_LOCAL_MODEL) {
       try {
         console.log('Using local DeepSeek R1 model...');
-        return await generateCommitMessageFromLocalModel(diff);
+        const commitMessage = await generateCommitMessageFromLocalModel(diff);
+        console.log(chalk.green(commitMessage), 'commitMessage from local model');
+        return commitMessage;
       } catch (error) {
         console.error('Local model error:', error);
         return 'Error summarizing with local model.';
@@ -177,7 +178,9 @@ const main = async () => {
         console.error('OPEN_AI_KEY_FOR_COMMIT is not set.');
         return 'OPEN_AI_KEY_FOR_COMMIT is not set.';
       }
-      return await generateCommitMessageFromOpenAIAPI(diff);
+      const commitMessage = await generateCommitMessageFromOpenAIAPI(diff);
+      console.log(chalk.green(commitMessage), 'commitMessage from openai');
+      return commitMessage;
     }
   } else {
     console.log('Operation canceled.');

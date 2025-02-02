@@ -58,14 +58,14 @@ After running the script, it will ask you to confirm the diff.
 
 2. Wait for the script to generate the commit message.
 like this:
-   ```
-   **Summary:** Update environment variable handling and logging
+```
+**Summary:** Update environment variable handling and logging
 
-   **Description:**
-   - Changed the environment variable from `XXX` to `YYY`.
-   - Updated console log message for empty changed files for improved clarity.
-   ...
-   ```
+**Description:**
+- Changed the environment variable from `XXX` to `YYY`.
+- Updated console log message for empty changed files for improved clarity.
+...
+```
 
 ## 🛠️ Code Reference
 The main idea of this script is inspired by an article from August. Many thanks to him for his outstanding articles.
