@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const R = require('ramda');
 const axios = require('axios');
 const { execSync } = require('child_process');

@@ -1,6 +1,6 @@
 {
   "name": "commit-summarize",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This Node.js script automatically generates concise and descriptive Git commit messages using OpenAI's API. It analyzes your staged changes and provides a meaningful commit message in two parts:",
   "main": "index.cjs",
   "dependencies": {
