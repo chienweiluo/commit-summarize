@@ -18,7 +18,7 @@ This Node.js script automatically generates concise and descriptive Git commit m
   - Enable to use local model with ollama, avoid code exposure.
   - Anonymize variable names [On the way]
 
-## 📦 Installation
+## 📦 Installation & Usage
 
 1. Clone the repository:
    ```bash
@@ -28,22 +28,31 @@ This Node.js script automatically generates concise and descriptive Git commit m
 
 2. Install the required packages:
    ```bash
-   npm install dotenv axios ramda readline
+   yarn
    ```
 
-3. Set up your `.env` file:
+3. Run the script:
+   - If you want to use OpenAI API, you can set the following environment variable:
    ```env
-   OPEN_API_KEY_COMMIT=YOUR_KEY
+   OPEN_API_KEY_COMMIT=YOUR_KEY && yarn start
+   ```
+   - If you want to use local model (deepseek-r1 on ollama), you can set the following environment variable:
+   ```env
+   USE_LOCAL_MODEL=true && yarn start
    ```
 
-## ⚡ Usage
+4. Check the diff and answer the yes/no question to confirm the diff.
 
-Run the script using Node.js:
-```bash
-node index.cjs
+5. Wait for the script to generate the commit message.
+like this:
 ```
+**Summary:** Update environment variable handling and logging
 
-If no changes are staged, the script will notify you.
+**Description:**
+- Changed the environment variable from `XXX` to `YYY`.
+- Updated console log message for empty changed files for improved clarity.
+...
+```
 
 ## 🛠️ Code Reference
 The main idea of this script is inspired by an article from August. Many thanks to him for his outstanding articles.
