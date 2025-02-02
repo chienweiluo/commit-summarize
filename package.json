@@ -25,5 +25,8 @@
   "bugs": {
     "url": "https://github.com/chienweiluo/commit-summarize/issues"
   },
+  "bin": {
+    "commit-summarize": "./index.cjs"
+  },
   "homepage": "https://github.com/chienweiluo/commit-summarize#readme"
 }

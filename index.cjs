@@ -171,6 +171,10 @@ const main = async () => {
       }
     } else {
       console.log(`Using OpenAI API ${OPEN_AI_MODEL}...`);
+      if (!OPEN_AI_KEY_FOR_COMMIT) {
+        console.error('OPEN_AI_KEY_FOR_COMMIT is not set.');
+        return 'OPEN_AI_KEY_FOR_COMMIT is not set.';
+      }
       return await generateCommitMessageFromOpenAIAPI(diff);
     }
   } else {
