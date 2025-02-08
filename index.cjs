@@ -18,11 +18,8 @@ const LOCAL_MODEL_API_URL = 'http://localhost:11434/api/chat'; // ollama
 // Colorize the diff for better readability of logs
 const colorizeDiff = diff => {
   return diff.split('\n').map(line => {
-    if (line.startsWith('+')) {
-      return chalk.green(line); 
-    } else if (line.startsWith('-')) {
-      return chalk.red(line); 
-    }
+    if (line.startsWith('+')) return chalk.green(line);
+    if (line.startsWith('-')) return chalk.red(line);
     return line;
   }).join('\n');
 };
@@ -161,31 +158,32 @@ const main = async () => {
   const diff = getGitDiff(changedFiles);
   const confirmed = await confirmSend(diff);
 
-  if (confirmed) {
-    if (USE_LOCAL_MODEL) {
-      try {
-        console.log('Using local DeepSeek R1 model...');
-        const commitMessage = await generateCommitMessageFromLocalModel(diff);
-        console.log(chalk.green(commitMessage), 'commitMessage from local model');
-        return commitMessage;
-      } catch (error) {
-        console.error('Local model error:', error);
-        return 'Error summarizing with local model.';
-      }
-    } else {
-      console.log(`Using OpenAI API ${OPEN_AI_MODEL}...`);
-      if (!OPEN_AI_KEY_FOR_COMMIT) {
-        console.error('OPEN_AI_KEY_FOR_COMMIT is not set.');
-        return 'OPEN_AI_KEY_FOR_COMMIT is not set.';
-      }
-      const commitMessage = await generateCommitMessageFromOpenAIAPI(diff);
-      console.log(chalk.green(commitMessage), 'commitMessage from openai');
-      return commitMessage;
-    }
-  } else {
+  if (!confirmed) {
     console.log('Operation canceled.');
     return 'Operation canceled.';
   }
+
+   if (USE_LOCAL_MODEL) {
+    try {
+      console.log('Using local DeepSeek R1 model...');
+      const commitMessage = await generateCommitMessageFromLocalModel(diff);
+      console.log(chalk.green(commitMessage), 'commitMessage from local model');
+      return commitMessage;
+    } catch (error) {
+      console.error('Local model error:', error);
+      return 'Error summarizing with local model.';
+    }
+  }
+  
+  console.log(`Using OpenAI API ${OPEN_AI_MODEL}...`);
+  if (!OPEN_AI_KEY_FOR_COMMIT) {
+    console.error('OPEN_AI_KEY_FOR_COMMIT is not set.');
+    return 'OPEN_AI_KEY_FOR_COMMIT is not set.';
+  }
+
+  const commitMessage = await generateCommitMessageFromOpenAIAPI(diff);
+  console.log(chalk.green(commitMessage), 'commitMessage from openai');
+  return commitMessage;
 };
 
 main();
