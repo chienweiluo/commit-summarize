@@ -45,6 +45,31 @@ const getChangedFiles = () => {
   }
 };
 
+// Generate a prompt for checking if the diff is an atomic update and generate a commit message
+const generateAtomicityAndCommitPrompt = diff => `
+This is a git diff for atomic PRs. Your task is to:
+1. **First, analyze whether the PR is atomic** based on the following rules.
+2. **Second, generate a commit message no matter whether the PR is atomic or not**.
+
+### Rules for an Atomic PR:
+- **Scope:** The change should only implement one feature, bug fix, or refactor.
+- **File Count:** No more than 10 files should be modified.
+- **Cohesion:** Changes should be within related files/modules (e.g., UI changes should not be mixed with database changes).
+- **Diff Size:** No file should have more than 100+ modified lines.
+
+### Git Diff:
+\`\`\`
+${diff}
+\`\`\`
+
+### Expected Response Format:
+- **Atomic (Yes/No)?** (Answer only "Yes" or "No")
+- **Reasoning:** Explain which criteria are met or violated.
+- **Commit Message:** a meaningful commit message with:
+  1. **Summary** (no more than 50 characters)
+  2. **Description** (bullet points describing the changes)
+`;
+
 // Get the git diff for the changed files
 const getGitDiff = R.pipe(
   R.map(file => {
@@ -67,11 +92,11 @@ const generateCommitMessageFromOpenAIAPI = async diff => {
     messages: [
       {
         role: 'system',
-        content: 'You are an excellent developer responsible for writing concise and descriptive Git commit messages.',
+        content: 'You are an excellent developer and code reviewer responsible for writing concise and descriptive Git commit messages.',
       },
       {
         role: 'user',
-        content: `Based on the following git diff, generate a meaningful commit message in English. Include two parts:\n1. Summary (no more than 50 characters)\n2. Description (bullet points describing the changes):\n${diff}`,
+        content: generateAtomicityAndCommitPrompt(diff),
       },
     ],
   };
@@ -102,16 +127,16 @@ const generateCommitMessageFromLocalModel = async diff => {
     messages: [
       {
         role: 'system',
-        content: 'You are an AI specialized in generating concise Git commit messages. Respond ONLY with the commit message, without explanations or additional context.',
-      },      
+        content: 'You are an excellent developer and code reviewer responsible for writing concise and descriptive Git commit messages.please generate a commit message without explanations or additional context.',
+      },
       {
         role: 'user',
-        content: `Generate a concise Git commit message based on the following git diff. Strictly follow this format:\n\nSummary: <no more than 50 characters>\n\nDescription:\n- Bullet point 1\n- Bullet point 2\n\nDo NOT include explanations, thoughts, or additional context. Only provide the formatted commit message.\n\nGit diff:\n${diff}`,
+        content: generateAtomicityAndCommitPrompt(diff),
       }
     ],
     temperature: 0.2,
     top_p: 0.9,
-    stream: false
+    stream: false,
   });
 
   try {
@@ -135,9 +160,9 @@ const confirmSend = diff => {
       output: process.stdout
     });
 
-    console.log(chalk.yellow('Show diff: ----------------------------'));
+    console.log(chalk.yellow('Show diff: ----------------------------\n\n'));
     console.log(colorizeDiff(diff));
-    console.log(chalk.yellow('Show diff end. ----------------------------'));
+    console.log(chalk.yellow('Show diff end. ----------------------------\n\n'));
 
     rl.question('Do you want to send this diff to AI? (yes/no): ', answer => {
       rl.close();
@@ -167,7 +192,8 @@ const main = async () => {
     try {
       console.log('Using local DeepSeek R1 model...');
       const commitMessage = await generateCommitMessageFromLocalModel(diff);
-      console.log(chalk.green(commitMessage), 'commitMessage from local model');
+      console.log(chalk.green(commitMessage), );
+      console.log('End of CommitMessage from local model\n');
       return commitMessage;
     } catch (error) {
       console.error('Local model error:', error);
